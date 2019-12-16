@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Text;
+using Microsoft.AspNetCore.Mvc.Rendering;
 using MvcDynamicForms.NetCore.Fields.Abstract;
 
 namespace MvcDynamicForms.NetCore.Fields
@@ -47,7 +48,8 @@ namespace MvcDynamicForms.NetCore.Fields
             hdn.Attributes.Add("type", "hidden");
             hdn.Attributes.Add("value", this.Value);
             hdn.MergeAttributes(this._inputHtmlAttributes);
-            html.Replace(PlaceHolders.Input, hdn.ToString(TagRenderMode.SelfClosing));
+            hdn.TagRenderMode = TagRenderMode.SelfClosing;
+            html.Replace(PlaceHolders.Input, hdn.ToString());
 
             // wrapper id
             html.Replace(PlaceHolders.FieldWrapperId, this.GetWrapperId());

@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Linq;
 using System.Text;
+using Microsoft.AspNetCore.Mvc.Rendering;
 using MvcDynamicForms.NetCore.Enums;
 using MvcDynamicForms.NetCore.Fields.Abstract;
 
@@ -20,7 +21,7 @@ namespace MvcDynamicForms.NetCore.Fields
             // prompt label
             var prompt = new TagBuilder("label");
             prompt.AddCssClass(this._promptClass);
-            prompt.SetInnerText(this.GetPrompt());
+            prompt.InnerHtml.AppendHtml(this.GetPrompt());
             html.Replace(PlaceHolders.Prompt, prompt.ToString());
 
             // error label
@@ -29,7 +30,7 @@ namespace MvcDynamicForms.NetCore.Fields
                 var error = new TagBuilder("label");
                 error.AddCssClass(this._errorClass);
                 ;
-                error.SetInnerText(this.Error);
+                error.InnerHtml.AppendHtml(this.Error);
                 html.Replace(PlaceHolders.Error, error.ToString());
             }
 
@@ -38,7 +39,8 @@ namespace MvcDynamicForms.NetCore.Fields
             var ul = new TagBuilder("ul");
             ul.AddCssClass(this._orientation == Orientation.Vertical ? this._verticalClass : this._horizontalClass);
             ul.AddCssClass(this._listClass);
-            input.Append(ul.ToString(TagRenderMode.StartTag));
+            ul.TagRenderMode = TagRenderMode.StartTag;
+            input.Append(ul.InnerHtml.ToString());
 
             var choicesList = this._choices.ToList();
             for (int i = 0; i < choicesList.Count; i++)
@@ -48,7 +50,8 @@ namespace MvcDynamicForms.NetCore.Fields
 
                 // open list item
                 var li = new TagBuilder("li");
-                input.Append(li.ToString(TagRenderMode.StartTag));
+                li.TagRenderMode = TagRenderMode.StartTag;
+                input.Append(li.ToString());
 
                 // checkbox input
                 var chk = new TagBuilder("input");
@@ -60,19 +63,21 @@ namespace MvcDynamicForms.NetCore.Fields
                     chk.Attributes.Add("checked", "checked");
                 chk.MergeAttributes(this._inputHtmlAttributes);
                 chk.MergeAttributes(choice.HtmlAttributes);
-                input.Append(chk.ToString(TagRenderMode.SelfClosing));
+                chk.TagRenderMode = TagRenderMode.SelfClosing;
+                input.Append(chk.ToString());
 
                 // checkbox label
                 var lbl = new TagBuilder("label");
                 lbl.Attributes.Add("for", chkId);
                 lbl.AddCssClass(this._inputLabelClass);
-                lbl.SetInnerText(choice.Text);
+                lbl.InnerHtml.AppendHtml(choice.Text);
                 input.Append(lbl.ToString());
-
+                lbl.TagRenderMode = TagRenderMode.EndTag;
                 // close list item
-                input.Append(li.ToString(TagRenderMode.EndTag));
+                input.Append(li.ToString());
             }
-            input.Append(ul.ToString(TagRenderMode.EndTag));
+            ul.TagRenderMode = TagRenderMode.EndTag;
+            input.Append(ul.ToString());
 
             // add hidden tag, so that a value always gets sent
             var hidden = new TagBuilder("input");
@@ -80,7 +85,8 @@ namespace MvcDynamicForms.NetCore.Fields
             hidden.Attributes.Add("id", inputName + "_hidden");
             hidden.Attributes.Add("name", inputName);
             hidden.Attributes.Add("value", string.Empty);
-            html.Replace(PlaceHolders.Input, input.ToString() + hidden.ToString(TagRenderMode.SelfClosing));
+            hidden.TagRenderMode = TagRenderMode.SelfClosing;
+            html.Replace(PlaceHolders.Input, input.ToString() + hidden.ToString());
 
             // wrapper id
             html.Replace(PlaceHolders.FieldWrapperId, this.GetWrapperId());

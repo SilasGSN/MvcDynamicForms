@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Linq;
 using System.Text;
+using Microsoft.AspNetCore.Mvc.Rendering;
 using MvcDynamicForms.NetCore.Enums;
 using MvcDynamicForms.NetCore.Fields.Abstract;
 
@@ -20,7 +21,7 @@ namespace MvcDynamicForms.NetCore.Fields
             // prompt label
             var prompt = new TagBuilder("label");
             prompt.AddCssClass(this._promptClass);
-            prompt.SetInnerText(this.GetPrompt());
+            prompt.InnerHtml.AppendHtml(this.GetPrompt());
             html.Replace(PlaceHolders.Prompt, prompt.ToString());
 
             // error label
@@ -28,7 +29,7 @@ namespace MvcDynamicForms.NetCore.Fields
             {
                 var error = new TagBuilder("label");
                 error.AddCssClass(this._errorClass);
-                error.SetInnerText(this.Error);
+                error.InnerHtml.AppendHtml(this.Error);
                 html.Replace(PlaceHolders.Error, error.ToString());
             }
 
@@ -38,7 +39,8 @@ namespace MvcDynamicForms.NetCore.Fields
             ul.Attributes.Add("class",
                 this._orientation == Orientation.Vertical ? this._verticalClass : this._horizontalClass);
             ul.AddCssClass(this._listClass);
-            input.Append(ul.ToString(TagRenderMode.StartTag));
+            ul.TagRenderMode = TagRenderMode.StartTag;
+            input.Append(ul.ToString());
 
             var choicesList = this._choices.ToList();
             for (int i = 0; i < choicesList.Count; i++)
@@ -48,7 +50,8 @@ namespace MvcDynamicForms.NetCore.Fields
 
                 // open list item
                 var li = new TagBuilder("li");
-                input.Append(li.ToString(TagRenderMode.StartTag));
+                li.TagRenderMode = TagRenderMode.StartTag;
+                input.Append(li.ToString());
 
                 // radio button input
                 var rad = new TagBuilder("input");
@@ -60,19 +63,22 @@ namespace MvcDynamicForms.NetCore.Fields
                     rad.Attributes.Add("checked", "checked");
                 rad.MergeAttributes(this._inputHtmlAttributes);
                 rad.MergeAttributes(choice.HtmlAttributes);
-                input.Append(rad.ToString(TagRenderMode.SelfClosing));
+                rad.TagRenderMode = TagRenderMode.SelfClosing;
+                input.Append(rad.ToString());
 
                 // checkbox label
                 var lbl = new TagBuilder("label");
                 lbl.Attributes.Add("for", radId);
                 lbl.Attributes.Add("class", this._inputLabelClass);
-                lbl.SetInnerText(choice.Text);
+                lbl.InnerHtml.AppendHtml(choice.Text);
                 input.Append(lbl.ToString());
 
                 // close list item
-                input.Append(li.ToString(TagRenderMode.EndTag));
+                li.TagRenderMode = TagRenderMode.EndTag;
+                input.Append(li.ToString());
             }
-            input.Append(ul.ToString(TagRenderMode.EndTag));
+            ul.TagRenderMode = TagRenderMode.EndTag;
+            input.Append(ul.ToString());
             html.Replace(PlaceHolders.Input, input.ToString());
 
             // wrapper id

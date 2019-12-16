@@ -63,7 +63,7 @@ namespace MvcDynamicForms.NetCore
         {
             var formWrapper = new TagBuilder("div");
             formWrapper.AddCssClass("MvcDynamicForm");
-            formWrapper.InnerHtml = PlaceHolders.Fields + PlaceHolders.SerializedForm + PlaceHolders.DataScript;
+            formWrapper.InnerHtml.AppendHtml(PlaceHolders.Fields + PlaceHolders.SerializedForm + PlaceHolders.DataScript);
             return formWrapper.ToString();
         }
 
@@ -85,10 +85,10 @@ namespace MvcDynamicForms.NetCore
 
                 var script = new TagBuilder("script");
                 script.Attributes["type"] = "text/javascript";
-                script.InnerHtml = string.Format("{0}var {1} = {2};",
+                script.InnerHtml.AppendHtml(string.Format("{0}var {1} = {2};",
                     Environment.NewLine,
                     jsVarName,
-                    data.ToJson());
+                    data.ToJson()));
 
                 return script.ToString();
             }

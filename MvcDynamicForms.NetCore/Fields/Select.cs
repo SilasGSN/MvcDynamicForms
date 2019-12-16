@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Text;
+using Microsoft.AspNetCore.Mvc.Rendering;
 using MvcDynamicForms.NetCore.Fields.Abstract;
 
 namespace MvcDynamicForms.NetCore.Fields
@@ -59,7 +60,7 @@ namespace MvcDynamicForms.NetCore.Fields
             var prompt = new TagBuilder("label");
             prompt.AddCssClass(this._promptClass);
             prompt.Attributes.Add("for", inputName);
-            prompt.SetInnerText(this.GetPrompt());
+            prompt.InnerHtml.AppendHtml(this.GetPrompt());
             html.Replace(PlaceHolders.Prompt, prompt.ToString());
 
             // error label
@@ -68,7 +69,7 @@ namespace MvcDynamicForms.NetCore.Fields
                 var error = new TagBuilder("label");
                 error.AddCssClass(this._errorClass);
                 error.Attributes.Add("for", inputName);
-                error.SetInnerText(this.Error);
+                error.InnerHtml.AppendHtml(this.Error);
                 html.Replace(PlaceHolders.Error, error.ToString());
             }
 
@@ -78,14 +79,15 @@ namespace MvcDynamicForms.NetCore.Fields
             select.Attributes.Add("id", inputName);
             select.Attributes.Add("name", inputName);
             select.MergeAttributes(this._inputHtmlAttributes);
-            input.Append(select.ToString(TagRenderMode.StartTag));
+            select.TagRenderMode = TagRenderMode.StartTag;
+            input.Append(select.ToString());
 
             // initial empty option
             if (this.ShowEmptyOption)
             {
                 var opt = new TagBuilder("option");
                 opt.Attributes.Add("value", null);
-                opt.SetInnerText(this.EmptyOption);
+                opt.InnerHtml.AppendHtml(this.EmptyOption);
                 input.Append(opt.ToString());
             }
 
@@ -97,12 +99,13 @@ namespace MvcDynamicForms.NetCore.Fields
                 if (choice.Selected)
                     opt.Attributes.Add("selected", "selected");
                 opt.MergeAttributes(choice.HtmlAttributes);
-                opt.SetInnerText(choice.Text);
+                opt.InnerHtml.AppendHtml(choice.Text);
                 input.Append(opt.ToString());
             }
 
             // close select element
-            input.Append(select.ToString(TagRenderMode.EndTag));
+            select.TagRenderMode = TagRenderMode.EndTag;
+            input.Append(select.ToString());
 
             // add hidden tag, so that a value always gets sent for select tags
             var hidden = new TagBuilder("input");
@@ -110,7 +113,8 @@ namespace MvcDynamicForms.NetCore.Fields
             hidden.Attributes.Add("id", inputName + "_hidden");
             hidden.Attributes.Add("name", inputName);
             hidden.Attributes.Add("value", string.Empty);
-            html.Replace(PlaceHolders.Input, input.ToString() + hidden.ToString(TagRenderMode.SelfClosing));
+            hidden.TagRenderMode = TagRenderMode.SelfClosing;
+            html.Replace(PlaceHolders.Input, input.ToString() + hidden.ToString());
 
             // wrapper id
             html.Replace(PlaceHolders.FieldWrapperId, this.GetWrapperId());

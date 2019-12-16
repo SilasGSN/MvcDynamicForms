@@ -109,7 +109,7 @@ namespace MvcDynamicForms.NetCore.Fields.Abstract
             var wrapper = new TagBuilder("div");
             wrapper.AddCssClass("MvcFieldWrapper");
             wrapper.Attributes["id"] = PlaceHolders.FieldWrapperId;
-            wrapper.InnerHtml = PlaceHolders.Prompt + PlaceHolders.Error + PlaceHolders.Input;
+            wrapper.InnerHtml.AppendHtml(PlaceHolders.Prompt + PlaceHolders.Error + PlaceHolders.Input);
             return wrapper.ToString();
         }
 

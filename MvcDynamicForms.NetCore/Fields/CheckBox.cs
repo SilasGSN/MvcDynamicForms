@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Text;
+using Microsoft.AspNetCore.Mvc.Rendering;
 using MvcDynamicForms.NetCore.Fields.Abstract;
 
 namespace MvcDynamicForms.NetCore.Fields
@@ -70,7 +71,7 @@ namespace MvcDynamicForms.NetCore.Fields
             if (!this.ErrorIsClear)
             {
                 var error = new TagBuilder("label");
-                error.SetInnerText(this.Error);
+                error.InnerHtml.AppendHtml(this.Error);
                 error.Attributes.Add("for", inputName);
                 error.AddCssClass(this._errorClass);
                 html.Replace(PlaceHolders.Error, error.ToString());
@@ -91,12 +92,14 @@ namespace MvcDynamicForms.NetCore.Fields
             hdn.Attributes.Add("id", inputName + "_hidden");
             hdn.Attributes.Add("name", inputName);
             hdn.Attributes.Add("value", bool.FalseString);
+            hdn.TagRenderMode = TagRenderMode.SelfClosing;
+            chk.TagRenderMode = TagRenderMode.SelfClosing;
             html.Replace(PlaceHolders.Input,
-                chk.ToString(TagRenderMode.SelfClosing) + hdn.ToString(TagRenderMode.SelfClosing));
+                chk.ToString() + hdn.ToString());
 
             // prompt label
             var prompt = new TagBuilder("label");
-            prompt.SetInnerText(this.GetPrompt());
+            prompt.InnerHtml.AppendHtml(this.GetPrompt());
             prompt.Attributes.Add("for", inputName);
             prompt.Attributes.Add("class", this._promptClass);
             html.Replace(PlaceHolders.Prompt, prompt.ToString());
@@ -112,7 +115,7 @@ namespace MvcDynamicForms.NetCore.Fields
             var wrapper = new TagBuilder("div");
             wrapper.AddCssClass("MvcFieldWrapper");
             wrapper.Attributes["id"] = PlaceHolders.FieldWrapperId;
-            wrapper.InnerHtml = PlaceHolders.Error + PlaceHolders.Input + PlaceHolders.Prompt;
+            wrapper.InnerHtml.AppendHtml(PlaceHolders.Error + PlaceHolders.Input + PlaceHolders.Prompt);
             return wrapper.ToString();
         }
     }
